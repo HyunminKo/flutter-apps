@@ -5,9 +5,15 @@ void main() {
   runApp(MaterialApp(home: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var a = 3;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,29 +21,12 @@ class MyApp extends StatelessWidget {
         showDialog(
             context: context,
             builder: (context) {
-              return Dialog(
-                child: Container(
-                    height: 100,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("연락처"),
-                        TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                                onPressed: () {}, child: Text("cancel")),
-                            ElevatedButton(onPressed: () {}, child: Text("ok")),
-                          ],
-                        )
-                      ],
-                    )),
-              );
+              return DialogUI(
+                  state: a,
+                  addFunc: () {
+                    a++;
+                    print(a);
+                  });
             });
       }),
       appBar: AppBar(
@@ -107,6 +96,46 @@ class _ContactItemState extends State<ContactItem> {
           });
         },
       ),
+    );
+  }
+}
+
+class DialogUI extends StatelessWidget {
+  DialogUI({super.key, this.state, this.addFunc});
+  final state;
+  var addFunc;
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+          width: 300,
+          height: 300,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("연락처"),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("cancel")),
+                  ElevatedButton(
+                      onPressed: () {
+                        addFunc();
+                      },
+                      child: Text(state.toString())),
+                ],
+              )
+            ],
+          )),
     );
   }
 }
