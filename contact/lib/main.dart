@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:contacts_service/contacts_service.dart';
 import 'bottom_appbar.dart';
 
 void main() {
@@ -13,48 +15,72 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var a = 3;
+  var contacts = [];
+
+  getPermission() async {
+    var status = await Permission.contacts.status;
+    if (status.isGranted) {
+      print("OK");
+      setState(() async {
+        contacts = await ContactsService.getContacts();
+      });
+    } else if (status.isDenied) {
+      print("FAILED");
+      Permission.contacts.request();
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPermission();
+  }
+
   @override
   Widget build(BuildContext context) {
+    var total = contacts.length;
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () {
         showDialog(
             context: context,
             builder: (context) {
               return DialogUI(
-                  state: a,
-                  addFunc: () {
-                    a++;
-                    print(a);
+                  addFunc: (contact) {
+                    setState(() {
+                      contacts.add(contact);
+                      total = contacts.length;
+                    });
                   });
             });
-      }),
+      },
+      tooltip: total.toString(),
+      child: Icon(Icons.add)),
       appBar: AppBar(
         title: Text("연락처 App"),
       ),
-      body: ContactView(),
+      body: ContactView(contacts: contacts,),
       bottomNavigationBar: ContactBottomAppBar(),
     );
   }
 }
 
 class ContactView extends StatefulWidget {
-  const ContactView({Key? key}) : super(key: key);
-
+  ContactView({Key? key, this.contacts}) : super(key: key);
+  var contacts;
   @override
   State<ContactView> createState() => _ContactViewState();
 }
 
 class _ContactViewState extends State<ContactView> {
-  var names = ["휴고", "이안", "현민"];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: ListView.builder(
-        itemCount: names.length,
+        itemCount: widget.contacts.length,
         itemBuilder: (context, index) {
-          return ContactItem(name: names[index]);
+          return ContactItem(contact: widget.contacts[index]);
         },
       ),
     );
@@ -62,9 +88,9 @@ class _ContactViewState extends State<ContactView> {
 }
 
 class ContactItem extends StatefulWidget {
-  String name = "";
+  Contact contact;
 
-  ContactItem({super.key, required this.name});
+  ContactItem({super.key, required this.contact});
 
   @override
   State<ContactItem> createState() => _ContactItemState();
@@ -80,7 +106,7 @@ class _ContactItemState extends State<ContactItem> {
         size: 50,
       ),
       title: Text(
-        widget.name,
+        widget.contact.displayName.toString(),
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Row(children: [
@@ -101,9 +127,11 @@ class _ContactItemState extends State<ContactItem> {
 }
 
 class DialogUI extends StatelessWidget {
-  DialogUI({super.key, this.state, this.addFunc});
-  final state;
-  var addFunc;
+  DialogUI({Key? key, this.addFunc}) : super(key: key);
+  final addFunc;
+  var nameData;
+  var numberData;
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -115,6 +143,13 @@ class DialogUI extends StatelessWidget {
             children: [
               Text("연락처"),
               TextField(
+                onChanged: (on){nameData = on; print(nameData);},
+                decoration: InputDecoration(
+                  labelText: 'Display Name',
+                ),
+              ),
+              TextField(
+                onChanged: (on){numberData = on;},
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
                 ),
@@ -129,9 +164,12 @@ class DialogUI extends StatelessWidget {
                       child: Text("cancel")),
                   ElevatedButton(
                       onPressed: () {
-                        addFunc();
+                        var contact = Contact(givenName: nameData, phones: [Item(label: "home", value: numberData)]);
+                        ContactsService.addContact(contact);
+                        addFunc(contact);
+                        Navigator.pop(context);
                       },
-                      child: Text(state.toString())),
+                      child: Text("submit")),
                 ],
               )
             ],
