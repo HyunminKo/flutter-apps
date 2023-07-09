@@ -106,7 +106,7 @@ class _ContactItemState extends State<ContactItem> {
         size: 50,
       ),
       title: Text(
-        widget.contact.displayName.toString(),
+        widget.contact.displayName.toString() ?? "empty name",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Row(children: [
@@ -143,15 +143,17 @@ class DialogUI extends StatelessWidget {
             children: [
               Text("연락처"),
               TextField(
-                onChanged: (on){nameData = on; print(nameData);},
+                onChanged: (on){nameData = on;},
                 decoration: InputDecoration(
                   labelText: 'Display Name',
+                  enabledBorder: UnderlineInputBorder(),
                 ),
               ),
               TextField(
                 onChanged: (on){numberData = on;},
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
+                  enabledBorder: UnderlineInputBorder(),
                 ),
               ),
               Row(
