@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'style.dart' as style;
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+
+import 'style.dart' as style;
 import 'dart:convert';
+import 'dart:io';
 
 void main() {
   runApp(MaterialApp(
@@ -20,6 +23,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var tab = 0; // 0: home, 1: shop page
   List<FeedItem> feeds = [];
+  var userImage;
+
   getData() async {
     var result = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
     var decodedData = jsonDecode(result.body);
@@ -39,7 +44,19 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Instagram"),actions: [IconButton(icon:Icon(Icons.add_box_outlined), onPressed: (){}, iconSize: 30,)],),
+      appBar: AppBar(title: Text("Instagram"),actions: [IconButton(icon:Icon(Icons.add_box_outlined), onPressed: () async{
+        var picker = ImagePicker();
+        var image = await picker.pickImage(source: ImageSource.gallery);
+        if (image != null) {
+          setState(() {
+            userImage = File(image.path);
+          });
+        }
+
+        Navigator.push(context, 
+          MaterialPageRoute(builder: (c) => Upload(userImage: userImage,))
+        );
+      }, iconSize: 30,)],),
       body: [HomePage(feeds: feeds), Text('Shop page')][tab],
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
@@ -130,5 +147,28 @@ class FeedItem {
   @override
   String toString() {
     return "[FeedItem] imagePath: $imagePath, likes: $likes, author: $author, content: $content";
+  }
+}
+
+class Upload extends StatelessWidget {
+  const Upload({super.key, this.userImage});
+  final userImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.file(userImage),
+          Text('이미지업로드화면'),
+          TextField(),
+          IconButton(onPressed: (){
+            Navigator.pop(context);
+          }, icon:Icon(Icons.close)),
+        ],
+      )
+    );
   }
 }
