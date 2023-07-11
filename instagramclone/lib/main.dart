@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'style.dart' as style;
 import 'dart:convert';
@@ -25,20 +26,37 @@ class _MyAppState extends State<MyApp> {
   List<FeedItem> feeds = [];
   var userImage;
 
+  saveData() async {
+    var storage = await SharedPreferences.getInstance();
+
+    var map = {'age': 20};
+    storage.setString('map',jsonEncode(map));
+
+    print(storage.getString('map'));
+  }
+
   getData() async {
     var result = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
     var decodedData = jsonDecode(result.body);
     for (var item in decodedData) {
-      feeds.add(FeedItem(imagePath: item["image"], likes: item["likes"],author: item["user"], content: item["content"]));
+      var img = Image.network(item["image"] ?? "",fit: BoxFit.cover);
+      feeds.add(FeedItem(image: img, likes: item["likes"],author: item["user"], content: item["content"]));
     }
     setState(() {
       feeds = feeds;
     });
   }
+  addFeed(feed) {
+    setState(() {
+      feeds.insert(0, feed);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getData();
+    saveData();
   }
 
   @override
@@ -54,7 +72,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         Navigator.push(context, 
-          MaterialPageRoute(builder: (c) => Upload(userImage: userImage,))
+          MaterialPageRoute(builder: (c) => Upload(userImage: userImage, addFeed: addFeed))
         );
       }, iconSize: 30,)],),
       body: [HomePage(feeds: feeds), Text('Shop page')][tab],
@@ -110,7 +128,7 @@ class FeedItemWidget extends StatelessWidget {
                 AspectRatio(
                   aspectRatio: 4 / 3,
                   child: Container(
-                    child: Image.network(feed.imagePath ?? "",fit: BoxFit.cover),
+                    child: feed.image,
                     ),
                   ),
                 Padding(
@@ -135,35 +153,42 @@ class FeedItemWidget extends StatelessWidget {
 
 class FeedItem {
   FeedItem({
-    this.imagePath,
+    this.image,
     this.likes,
     this.author,
     this.content
   });
 
-  String? imagePath, author, content;
+  Image? image;
+  String? author, content;
   int? likes;
 
   @override
   String toString() {
-    return "[FeedItem] imagePath: $imagePath, likes: $likes, author: $author, content: $content";
+    return "[FeedItem] imagePath: $image, likes: $likes, author: $author, content: $content";
   }
 }
 
 class Upload extends StatelessWidget {
-  const Upload({super.key, this.userImage});
-  final userImage;
+  const Upload({super.key, this.userImage, this.addFeed});
+  final userImage, addFeed;
 
   @override
   Widget build(BuildContext context) {
+    var userInputText;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(actions: [
+        IconButton(onPressed: (){
+            addFeed(FeedItem(image: Image.file(userImage), likes: 0, author: "user", content: userInputText));
+            Navigator.pop(context);
+        }, icon: Icon(Icons.send))
+      ],),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.file(userImage),
           Text('이미지업로드화면'),
-          TextField(),
+          TextField(onChanged: (on){ userInputText = on;},),
           IconButton(onPressed: (){
             Navigator.pop(context);
           }, icon:Icon(Icons.close)),
