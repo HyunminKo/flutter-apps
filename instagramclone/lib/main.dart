@@ -46,7 +46,9 @@ class _MyAppState extends State<MyApp> {
     var decodedData = jsonDecode(result.body);
     for (var item in decodedData) {
       var img = Image.network(item["image"] ?? "",fit: BoxFit.cover);
-      feeds.add(FeedItem(image: img, likes: item["likes"],author: item["user"], content: item["content"]));
+      setState(() {
+        feeds.add(FeedItem(image: img, likes: item["likes"],author: item["user"], content: item["content"]));
+      });
     }
   }
 
@@ -54,7 +56,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       for (var item in feedItems) {
         feeds.add((FeedItem(
-            image: item["image"],
+            image: Image.network(item["image"]),
             likes: item["likes"],
             author: item["user"],
             content: item["content"])));
