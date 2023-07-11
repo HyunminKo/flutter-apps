@@ -3,15 +3,19 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
 import 'style.dart' as style;
 import 'dart:convert';
 import 'dart:io';
 
 void main() {
-  runApp(MaterialApp(
-    theme: style.theme,
-    home:MyApp()
+  runApp(ChangeNotifierProvider(
+    create: (c) => Store1(),
+    child: MaterialApp(
+      theme: style.theme,
+      home:MyApp()
+    ),
   ));
 }
 
@@ -228,14 +232,33 @@ class Upload extends StatelessWidget {
   }
 }
 
+class Store1 extends ChangeNotifier {
+  var name = 'john kim';
+  var follower = 0;
+  changeName() {
+    if (name == 'john park') {
+      name = 'john kim';
+    } else {
+      name = 'john park';
+    }
+    notifyListeners();
+  }
+}
+
 class Profile extends StatelessWidget {
   const Profile({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Text('프로필페이지'),
+      appBar: AppBar(title: Text(context.watch<Store1>().name),),
+      body: Column(
+        children: [
+          ElevatedButton(onPressed: (){
+            context.read<Store1>().changeName();
+          }, child: Text(context.watch<Store1>().name))
+        ],
+      ),
     );
   }
 }
