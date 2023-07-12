@@ -11,12 +11,12 @@ import 'dart:convert';
 import 'dart:io';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (c) => Store1(),
-    child: MaterialApp(
-      theme: style.theme,
-      home:MyApp()
-    ),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (c) => Store1()),
+      ChangeNotifierProvider(create: (c) => Store2())
+    ],
+    child: MaterialApp(theme: style.theme, home: MyApp()),
   ));
 }
 
@@ -36,18 +36,23 @@ class _MyAppState extends State<MyApp> {
     var storage = await SharedPreferences.getInstance();
 
     var map = {'age': 20};
-    storage.setString('map',jsonEncode(map));
+    storage.setString('map', jsonEncode(map));
 
     print(storage.getString('map'));
   }
 
   getData() async {
-    var result = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
+    var result = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/data.json'));
     var decodedData = jsonDecode(result.body);
     for (var item in decodedData) {
-      var img = Image.network(item["image"] ?? "",fit: BoxFit.cover);
+      var img = Image.network(item["image"] ?? "", fit: BoxFit.cover);
       setState(() {
-        feeds.add(FeedItem(image: img, likes: item["likes"],author: item["user"], content: item["content"]));
+        feeds.add(FeedItem(
+            image: img,
+            likes: item["likes"],
+            author: item["user"],
+            content: item["content"]));
       });
     }
   }
@@ -80,33 +85,52 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Instagram"),actions: [IconButton(icon:Icon(Icons.add_box_outlined), onPressed: () async{
-        var picker = ImagePicker();
-        var image = await picker.pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          setState(() {
-            userImage = File(image.path);
-          });
-        }
+        appBar: AppBar(
+          title: Text("Instagram"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add_box_outlined),
+              onPressed: () async {
+                var picker = ImagePicker();
+                var image = await picker.pickImage(source: ImageSource.gallery);
+                if (image != null) {
+                  setState(() {
+                    userImage = File(image.path);
+                  });
+                }
 
-        Navigator.push(context, 
-          MaterialPageRoute(builder: (c) => Upload(userImage: userImage, addFeed: addFeed))
-        );
-      }, iconSize: 30,)],),
-      body: [HomePage(feeds: feeds, addData: addData,), Text('Shop page')][tab],
-      bottomNavigationBar: BottomNavigationBar(
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        onTap: (on) {
-          setState(() {
-          tab = on;
-        });},
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), label: '샵'),
-        ],
-      )
-    );
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (c) =>
+                            Upload(userImage: userImage, addFeed: addFeed)));
+              },
+              iconSize: 30,
+            )
+          ],
+        ),
+        body: [
+          HomePage(
+            feeds: feeds,
+            addData: addData,
+          ),
+          Text('Shop page')
+        ][tab],
+        bottomNavigationBar: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          onTap: (on) {
+            setState(() {
+              tab = on;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined), label: '홈'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_bag_outlined), label: '샵'),
+          ],
+        ));
   }
 }
 
@@ -124,7 +148,8 @@ class _HomePageState extends State<HomePage> {
   var getMoreRequestState = "NONE";
 
   getMore() async {
-    var requestURL = "https://codingapple1.github.io/app/more$getMoreRequestCount.json";
+    var requestURL =
+        "https://codingapple1.github.io/app/more$getMoreRequestCount.json";
     getMoreRequestState = "RUNNING";
 
     if (getMoreRequestCount > 2) {
@@ -187,25 +212,29 @@ class FeedItemWidget extends StatelessWidget {
                   aspectRatio: 4 / 3,
                   child: Container(
                     child: feed.image,
-                    ),
                   ),
+                ),
                 GestureDetector(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10, 15, 0, 0),
-                    child: Text("좋아요: ${feed.likes}", style: TextStyle(fontWeight: FontWeight.bold),),
+                    child: Text(
+                      "좋아요: ${feed.likes}",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  onTap: (){
-                    Navigator.push(context,
-                        PageRouteBuilder(pageBuilder: (c, a1, a2)=>Profile(),
-                          transitionsBuilder: (c, a1, a2, child) =>
-                              SlideTransition(position:
-                                Tween(
-                                  begin: Offset(1.0, 0.0),
-                                  end: Offset(0.0, 0.0),
-                                ).animate(a1),
-                                child: child,
-                              )
-                        ));
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                            pageBuilder: (c, a1, a2) => Profile(),
+                            transitionsBuilder: (c, a1, a2, child) =>
+                                SlideTransition(
+                                  position: Tween(
+                                    begin: Offset(1.0, 0.0),
+                                    end: Offset(0.0, 0.0),
+                                  ).animate(a1),
+                                  child: child,
+                                )));
                   },
                 ),
                 GestureDetector(
@@ -213,8 +242,9 @@ class FeedItemWidget extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(10, 0.5, 0, 0),
                     child: Text("글쓴이: ${feed.author}"),
                   ),
-                  onTap: (){
-                    Navigator.push(context, CupertinoPageRoute(builder: (c)=> Profile()));
+                  onTap: () {
+                    Navigator.push(
+                        context, CupertinoPageRoute(builder: (c) => Profile()));
                   },
                 ),
                 GestureDetector(
@@ -222,12 +252,13 @@ class FeedItemWidget extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(10, 0.5, 0, 0),
                     child: Text("글내용: ${feed.content}"),
                   ),
-                  onTap: (){
-                    Navigator.push(context, 
-                        PageRouteBuilder(pageBuilder: (c, a1, a2) => Profile(),
-                        transitionsBuilder: (c, a1, a2, child) =>
-                            FadeTransition(opacity: a1, child: child)
-                    ));
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                            pageBuilder: (c, a1, a2) => Profile(),
+                            transitionsBuilder: (c, a1, a2, child) =>
+                                FadeTransition(opacity: a1, child: child)));
                   },
                 ),
               ]))
@@ -238,12 +269,7 @@ class FeedItemWidget extends StatelessWidget {
 }
 
 class FeedItem {
-  FeedItem({
-    this.image,
-    this.likes,
-    this.author,
-    this.content
-  });
+  FeedItem({this.image, this.likes, this.author, this.content});
 
   Image? image;
   String? author, content;
@@ -263,30 +289,46 @@ class Upload extends StatelessWidget {
   Widget build(BuildContext context) {
     var userInputText;
     return Scaffold(
-      appBar: AppBar(actions: [
-        IconButton(onPressed: (){
-            addFeed(FeedItem(image: Image.file(userImage), likes: 0, author: "user", content: userInputText));
-            Navigator.pop(context);
-        }, icon: Icon(Icons.send))
-      ],),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.file(userImage),
-          Text('이미지업로드화면'),
-          TextField(onChanged: (on){ userInputText = on;},),
-          IconButton(onPressed: (){
-            Navigator.pop(context);
-          }, icon:Icon(Icons.close)),
-        ],
-      )
-    );
+        appBar: AppBar(
+          actions: [
+            IconButton(
+                onPressed: () {
+                  addFeed(FeedItem(
+                      image: Image.file(userImage),
+                      likes: 0,
+                      author: "user",
+                      content: userInputText));
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.send))
+          ],
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.file(userImage),
+            Text('이미지업로드화면'),
+            TextField(
+              onChanged: (on) {
+                userInputText = on;
+              },
+            ),
+            IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.close)),
+          ],
+        ));
   }
 }
 
 class Store1 extends ChangeNotifier {
   var name = 'john kim';
   var follower = 0;
+  var isFollowered = false;
+  var profileImage = [];
+
   changeName() {
     if (name == 'john park') {
       name = 'john kim';
@@ -295,6 +337,30 @@ class Store1 extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  addFollower() {
+    if (!isFollowered) {
+      follower++;
+      isFollowered = true;
+    } else {
+      follower--;
+      isFollowered = false;
+    }
+    notifyListeners();
+  }
+
+  getProfile() async {
+    var result = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/profile.json'));
+    var decodedData = jsonDecode(result.body);
+    profileImage = decodedData;
+    print(profileImage);
+    notifyListeners();
+  }
+}
+
+class Store2 extends ChangeNotifier {
+  var name = "mama ho";
 }
 
 class Profile extends StatelessWidget {
@@ -303,15 +369,52 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.watch<Store1>().name),),
-      body: Column(
-        children: [
-          ElevatedButton(onPressed: (){
-            context.read<Store1>().changeName();
-          }, child: Text(context.watch<Store1>().name))
+      appBar: AppBar(
+        title: Text(context.watch<Store2>().name),
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: ProfileHeader()),
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+                (c, i) => Container(
+                      child: Image.network(
+                          context.watch<Store1>().profileImage[i]),
+                    ),
+                childCount: context.watch<Store1>().profileImage.length),
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          )
         ],
       ),
     );
   }
 }
 
+class ProfileHeader extends StatelessWidget {
+  const ProfileHeader({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.grey,
+        ),
+        Text("팔로워 ${context.watch<Store1>().follower}명"),
+        ElevatedButton(
+            onPressed: () {
+              context.read<Store1>().addFollower();
+            },
+            child: Text("팔로우")),
+        ElevatedButton(
+            onPressed: () {
+              context.read<Store1>().getProfile();
+            },
+            child: Text("사진 가져오기"))
+      ],
+    );
+  }
+}
