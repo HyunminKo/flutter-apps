@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+import 'notification.dart';
 import 'style.dart' as style;
 import 'dart:convert';
 import 'dart:io';
@@ -80,11 +81,15 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     getData();
     saveData();
+    initNotification();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(child:Text("+"), onPressed: (){
+        showNotification2();
+      },),
         appBar: AppBar(
           title: Text("Instagram"),
           actions: [
