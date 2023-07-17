@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "585194788716",
+    "project_id": "fluttergram-10a7b",
+    "storage_bucket": "fluttergram-10a7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:585194788716:android:7b5ba07f728fa4fbd28549",
+        "android_client_info": {
+          "package_name": "com.hyunminko.instagramclone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "585194788716-6imque5bjkuok62e3pdce3rm85bm7ajn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASp21Z_6QlKVOHi1qBhdQnmoDfTHxTzgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "585194788716-6imque5bjkuok62e3pdce3rm85bm7ajn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "585194788716-t96m59m0uqpq78gn5i8tal6c13nltta4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hyunminko.instagramclone"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

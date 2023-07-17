@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:instagramclone/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'notification.dart';
 import 'style.dart' as style;
 import 'dart:convert';
 import 'dart:io';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (c) => Store1()),
@@ -87,9 +94,12 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(child:Text("+"), onPressed: (){
-        showNotification2();
-      },),
+        floatingActionButton: FloatingActionButton(
+          child: Text("+"),
+          onPressed: () {
+            showNotification2();
+          },
+        ),
         appBar: AppBar(
           title: Text("Instagram"),
           actions: [

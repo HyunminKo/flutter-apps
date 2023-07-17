@@ -12,7 +12,7 @@ initNotification() async {
   var androidSetting = AndroidInitializationSettings('app');
 
   //ios에서 앱 로드시 유저에게 권한요청하려면
-  var iosSetting = IOSInitializationSettings(
+  var iosSetting = DarwinInitializationSettings(
     requestAlertPermission: true,
     requestBadgePermission: true,
     requestSoundPermission: true,
@@ -42,7 +42,7 @@ showNotification() async {
     color: Color.fromARGB(255, 255, 0, 0),
   );
 
-  var iosDetails = IOSNotificationDetails(
+  var iosDetails = DarwinNotificationDetails(
     presentAlert: true,
     presentBadge: true,
     presentSound: true,
@@ -68,7 +68,7 @@ showNotification2() async {
     importance: Importance.max,
     color: Color.fromARGB(255, 255, 0, 0),
   );
-  var iosDetails = const IOSNotificationDetails(
+  var iosDetails = const DarwinNotificationDetails(
     presentAlert: true,
     presentBadge: true,
     presentSound: true,
@@ -97,7 +97,7 @@ showNotification3() async {
     importance: Importance.max,
     color: Color.fromARGB(255, 255, 0, 0),
   );
-  var iosDetails = const IOSNotificationDetails(
+  var iosDetails = const DarwinNotificationDetails(
     presentAlert: true,
     presentBadge: true,
     presentSound: true,
