@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagramclone/firebase_options.dart';
+import 'package:instagramclone/shop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'notification.dart';
 import 'style.dart' as style;
+import 'shop.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -129,7 +131,7 @@ class _MyAppState extends State<MyApp> {
             feeds: feeds,
             addData: addData,
           ),
-          Text('Shop page')
+          Shop()
         ][tab],
         bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
